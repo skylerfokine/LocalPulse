@@ -47,7 +47,7 @@ def get_event_links(page_url):
     except  requests.exceptions.RequestException as e:
         with open("server/app/logs/scraper.log", "a") as f: 
             f.write(f"{timestamp} | Scraper Agent | [FAIL] | {page_url} | {str(e)}\n")
-
+        return [], False
 
     #All the html from the ohio university calendar page
     ohio_events =  BeautifulSoup(ohio_events_cal.text, 'html.parser')
@@ -58,7 +58,6 @@ def get_event_links(page_url):
     now = datetime.now(timezone.utc)
     event_links = []
     stop = False
-
     
     #Event Population of all divs 
     events = ohio_events.find_all("div", class_="em-card") 
@@ -96,9 +95,22 @@ def get_event_links(page_url):
 def get_event_html(events_links):
     #List to store html 
     events_html = []
+    #Grabs timestamp for logging and opens file to log 
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+
     #fetch raw HTML for a single event detail page
     for link in events_links: 
-        fetch_event = requests.get(link)
+        
+        try: 
+            fetch_event = requests.get(link)
+            fetch_event.raise_for_status()
+            with open("server/app/logs/scraper.log", "a") as f:
+                f.write(f"{timestamp} | Scraper Agent | [PASS] | {link}\n")
+        except  requests.exceptions.RequestException as e:
+                with open("server/app/logs/scraper.log", "a") as f: 
+                    f.write(f"{timestamp} | Scraper Agent | [FAIL] | {link} | {str(e)}\n")
+                continue
+
         events_html.append(fetch_event.text)
 
     #All the html from the ohio university calendar page will then need passed to parser!
