@@ -9,8 +9,8 @@ SCRAPER_LOG = os.path.join(os.path.dirname(__file__), "..", "logs", "scraper.log
 def scrape(url): 
     if url == 'ohiouni': 
         return scrape_ohio_events()
-    else: 
-        pass
+    elif url == 'stuarts': 
+        return scrape_stuarts()
 
 def scrape_ohio_events():
     #paginates, calls both functions, returns a list of raw HTML strings
@@ -82,7 +82,77 @@ def get_event_html(events_links):
         events_html.append(fetch_event.text)
     return events_html
 
-if __name__ == "__main__": 
-    links, stop = get_event_links('https://calendar.ohio.edu/calendar')
+def scrape_stuarts():
+    page = 1
+    all_links = []
+    while True:
+        if page == 1:
+            stuarts_url = 'https://stuartsoperahouse.org/events/'
+        else:
+            stuarts_url = f'https://stuartsoperahouse.org/events/?pno={page}'
+        links, stop = get_stuarts_links(stuarts_url)
+        all_links.extend(links)
+        page += 1
+        if stop:
+            break
+    return get_event_html(all_links)
+
+def get_stuarts_links(page_url):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    try:
+        response = requests.get(page_url)
+        response.raise_for_status()
+        with open(SCRAPER_LOG, "a") as f:
+            f.write(f"{timestamp} | Scraper Agent | [PASS] | {page_url}\n")
+    except requests.exceptions.RequestException as e:
+        with open(SCRAPER_LOG, "a") as f:
+            f.write(f"{timestamp} | Scraper Agent | [FAIL] | {page_url} | {str(e)}\n")
+        return [], False
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    current_month = date.today().month
+    current_year = date.today().year
+    event_links = []
+    stop = False
+
+    cards = soup.find_all("div", class_="event cf")
+    for card in cards:
+        # Parse date from event-when field e.g. "Saturday, Apr 25th, 2026"
+        when = card.find("p", class_="event-when event-field")
+        if not when:
+            continue
+        date_text = when.get_text(" ", strip=True)
+        # Strip ordinal suffixes so strptime can parse it
+        date_text = date_text.replace("th,", ",").replace("st,", ",").replace("nd,", ",").replace("rd,", ",")
+        try:
+            date_part = date_text.split("Date:")[-1].split("|")[0].strip()
+            event_date = datetime.strptime(date_part, "%A, %b %d, %Y")
+        except ValueError:
+            continue
+        if event_date.month != current_month or event_date.year != current_year:
+            stop = True
+            continue
+        # Get event detail link from the "More Info" button
+        buttons_div = card.find("div", class_="event-buttons")
+        if not buttons_div:
+            continue
+        link_tag = buttons_div.find("a")
+        if link_tag and link_tag.get("href"):
+            href = link_tag["href"]
+            if href.startswith("/"):
+                href = "https://stuartsoperahouse.org" + href
+            event_links.append(href)
+
+    return event_links, stop
+
+#if __name__ == "__main__": 
+#    links, stop = get_event_links('https://calendar.ohio.edu/calendar')
+#    html = get_event_html(links[:1])
+#    print(html[0])
+
+if __name__ == "__main__":
+    links, stop = get_stuarts_links('https://stuartsoperahouse.org/events/')
     html = get_event_html(links[:1])
     print(html[0])
+
+
