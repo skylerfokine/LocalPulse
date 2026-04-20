@@ -26,7 +26,7 @@ def scrape_ohio_events():
         page += 1
         if stop:
             break
-    return get_event_html(all_links)
+    return get_event_html(all_links, 'ohiouni' )
 
 def get_event_links(page_url):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -66,20 +66,45 @@ def get_event_links(page_url):
             event_links.append(title_link["href"])
     return event_links, stop
 
-def get_event_html(events_links):
+def get_event_html(events_links, source):
     events_html = []
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-    for link in events_links: 
-        try: 
+    for link in events_links:
+        try:
             fetch_event = requests.get(link)
             fetch_event.raise_for_status()
-            with open(SCRAPER_LOG, "a") as f:  
+            with open(SCRAPER_LOG, "a") as f:
                 f.write(f"{timestamp} | Scraper Agent | [PASS] | {link}\n")
         except requests.exceptions.RequestException as e:
-            with open(SCRAPER_LOG, "a") as f:  
+            with open(SCRAPER_LOG, "a") as f:
                 f.write(f"{timestamp} | Scraper Agent | [FAIL] | {link} | {str(e)}\n")
             continue
-        events_html.append(fetch_event.text)
+
+        soup = BeautifulSoup(fetch_event.text, 'html.parser')
+
+        if source == 'ohiouni':
+            fields = {
+                'title': soup.find("h1", class_="em-header-card_title"),
+                'date': soup.find("p", class_="em-date"),
+                'cost': soup.find("span", class_="em-price-tag"),
+                'description': soup.find("div", class_="em-about_description"),
+            }
+        elif source == 'stuarts':
+            fields = {
+                'title': soup.find("h1", class_="page-title"),
+                'date': soup.find("span", class_="event-info-content event-date"),
+                'time': soup.find("span", class_="event-info-content event-time"),
+                'location': soup.find("span", class_="event-info-content event-location"),
+                'description': soup.find("div", class_="single-event-description"),
+             }
+        else:
+            with open(SCRAPER_LOG, "a") as f:
+                f.write(f"{timestamp} | Scraper Agent | [FAIL] | {link} | unknown source: {source}\n")
+            continue
+
+        trimmed = {k: str(v) if v else None for k, v in fields.items()}
+        events_html.append((link, source, trimmed))
+
     return events_html
 
 def scrape_stuarts():
@@ -95,7 +120,7 @@ def scrape_stuarts():
         page += 1
         if stop:
             break
-    return get_event_html(all_links)
+    return get_event_html(all_links, 'stuarts')
 
 def get_stuarts_links(page_url):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -152,7 +177,7 @@ def get_stuarts_links(page_url):
 
 if __name__ == "__main__":
     links, stop = get_stuarts_links('https://stuartsoperahouse.org/events/')
-    html = get_event_html(links[:1])
+    html = get_event_html(links[:1], 'stuarts')
     print(html[0])
 
 
