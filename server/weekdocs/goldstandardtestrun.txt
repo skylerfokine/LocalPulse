@@ -1,0 +1,133 @@
+ON 4/21/26 AT 4:54
+
+(.venv) skyler@SkylersDtop:~/LocalPulse/server$ python3.14 -m tests.eval
+
+--- Event 1 ---
+  title: [PASS] got 'INPP Seminar - Hsin-Yu Chen (University of Texas at Austin)' | expected 'INPP Seminar - Hsin-Yu Chen (University of Texas at Austin)'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '16:00' | expected '16:00'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 2 ---
+  title: [PASS] got 'Sips & Stories: Home is Not a Country' | expected 'Sips & Stories: Home is Not a Country'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '16:00' | expected '16:00'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 3 ---
+  title: [PASS] got 'Psychiatry Club - Clinical Psychiatry Simulation: Integrating Diagnosis, Communication, and Care' | expected 'Psychiatry Club - Clinica
+l Psychiatry Simulation: Integrating Diagnosis, Communication, and Care'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '17:00' | expected '17:00'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 4 ---
+  title: [PASS] got 'SBDC Workshop: Roundtable Discussion on Delegating & Outsourcing' | expected 'SBDC Workshop: Roundtable Discussion on Delegating & Outs
+ourcing'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '17:00' | expected '17:00'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 5 ---
+  title: [PASS] got 'College of Arts and Sciences Distinguished Speaker Series: "What should we Celebrate When we Celebrate the Fourth of July?"' | expected
+ 'College of Arts and Sciences Distinguished Speaker Series: "What should we Celebrate When we Celebrate the Fourth of July?"'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '17:30' | expected '17:30'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 6 ---
+  title: [PASS] got 'Trombone Studio Recital #1' | expected 'Trombone Studio Recital #1'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '18:00' | expected '18:00'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 7 ---
+  title: [PASS] got 'School of Dance BFA Junior Projects' | expected 'School of Dance BFA Junior Projects'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '18:30' | expected '18:30'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 8 ---
+  title: [PASS] got 'An Evening with Moradok Mai: Thai Arts, Culture, and "Thom: A Life Already Written"' | expected 'An Evening with Moradok Mai: Thai Arts
+, Culture, and "Thom: A Life Already Written"'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '20:00' | expected '20:00'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 9 ---
+  title: [PASS] got 'University Band, Symphonic Band, and Wind Symphony' | expected 'University Band, Symphonic Band, and Wind Symphony'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got '20:00' | expected '20:00'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 10 ---
+  title: [PASS] got '2026-27 Returning Student Room Selection Room Change Process' | expected '2026-27 Returning Student Room Selection Room Change Process'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [FAIL] got '9:00' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 11 ---
+  title: [PASS] got 'Bobcat Beautification Month 2026' | expected 'Bobcat Beautification Month 2026'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 12 ---
+  title: [PASS] got 'Exhibit: Cultural Sculptural Representations' | expected 'Exhibit: Cultural Sculptural Representations'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 13 ---
+  title: [PASS] got 'Finals at Alden' | expected 'Finals at Alden'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 14 ---
+  title: [PASS] got 'Looking Back to the United States 1976 Bicentennial' | expected 'Looking Back to the United States 1976 Bicentennial'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 15 ---
+  title: [PASS] got 'OHIO Student Life in the Postwar Years: Rediscovering the Grace Fleischer Diary, 1949-1953 (digital exhibit)' | expected 'OHIO Student 
+Life in the Postwar Years: Rediscovering the Grace Fleischer Diary, 1949-1953 (digital exhibit)'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 16 ---
+  title: [PASS] got 'OHIO Student Life in the Postwar Years: Rediscovering the Grace Fleischer Diary, 1949-1953 (in-person exhibit)' | expected 'OHIO Studen
+t Life in the Postwar Years: Rediscovering the Grace Fleischer Diary, 1949-1953 (in-person exhibit)'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 17 ---
+  title: [PASS] got 'Ohio University Fringe Festival' | expected 'Ohio University Fringe Festival'
+  date: [PASS] got '2026-04-22' | expected '2026-04-22'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'Free' | expected 'Free'
+
+--- Event 18 ---
+  title: [PASS] got 'Parking Lot 40 (Lower Seigfred) Partial Closure' | expected 'Parking Lot 40 (Lower Seigfred) Partial Closure'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 19 ---
+  title: [PASS] got 'Parking Lot 41 (Lower Seigfred) Partial Closure' | expected 'Parking Lot 41 (Lower Seigfred) Partial Closure'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+--- Event 20 ---
+  title: [PASS] got 'Parking Lot 44 (Patton Hall) Partial Closure' | expected 'Parking Lot 44 (Patton Hall) Partial Closure'
+  date: [PASS] got '2026-04-21' | expected '2026-04-21'
+  time: [PASS] got 'N/A' | expected 'N/A'
+  cost: [PASS] got 'N/A' | expected 'N/A'
+
+=== RESULTS: 19/20 events fully matched ===
+Exact match rate: 95.0%
+✅ PASSED threshold (≥80%)

@@ -25,6 +25,9 @@ def parse(scraped_events):
                 results.append(result)
     return results
 
+def parse_single(url, source, fields):
+    return parse_event(url, source, fields)
+
 def parse_event(url, source, fields):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -42,9 +45,12 @@ Use exactly these field names and types:
 - "title": string
 - "date": string in YYYY-MM-DD format
 - "time": string in HH:MM 24hr format, or "N/A" if not found
+    NOTE: time may be embedded in the date field (e.g. "April 21, 2026 4pm to 5pm") 
+— extract it if present.
 - "location": string, or "N/A" if not found
 - "description": string, or "N/A" if not found
-- "cost_free": boolean (true if free, false if paid, null if unknown)
+- "cost_free": true ONLY if the event explicitly says "Free". 
+  false if a price is listed. null if cost is not mentioned at all.
 - "cost_amount": number in dollars, or null if free or unknown
 - "category": one of "campus", "community", "theater", "concert", or "N/A" if unclear
 - "source_url": "{url}"
@@ -52,7 +58,7 @@ Use exactly these field names and types:
 Event data:
 title: {clean.get('title', 'N/A')}
 date: {clean.get('date', 'N/A')}
-time: {clean.get('time', 'N/A')}
+cost: {clean.get('cost', 'N/A')}
 location: {clean.get('location', 'N/A')}
 description: {clean.get('description', 'N/A')}
 
