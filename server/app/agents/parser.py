@@ -1,8 +1,12 @@
 import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 import json
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 OLLAMA_MODEL = "qwen2.5-coder:7b"
@@ -10,10 +14,15 @@ PARSER_LOG = os.path.join(os.path.dirname(__file__), "..", "logs", "parser.log")
 
 def parse(scraped_events):
     results = []
-    for url, source, fields in scraped_events:
-        event = parse_event(url, source, fields)
-        if event:
-            results.append(event)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {
+            executor.submit(parse_event, url, source, fields): url
+            for url, source, fields in scraped_events
+        }
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                results.append(result)
     return results
 
 def parse_event(url, source, fields):
@@ -57,7 +66,6 @@ Return ONLY the JSON object. No other text."""
 
     event = try_parse_json(raw)
     if event is None:
-        # Reprompt once asking it to clean up
         retry_prompt = f"Return this as valid JSON only, no markdown, no explanation:\n{raw}"
         raw2 = call_ollama(retry_prompt)
         if raw2:
@@ -89,7 +97,6 @@ def call_ollama(prompt):
         return None
 
 def try_parse_json(text):
-    # Strip markdown fences if present
     cleaned = text.strip().replace("```json", "").replace("```", "").strip()
     try:
         return json.loads(cleaned)
@@ -97,7 +104,7 @@ def try_parse_json(text):
         return None
 
 if __name__ == "__main__":
-    from scraper import get_stuarts_links, get_event_html
+    from app.agents.scraper import get_stuarts_links, get_event_html
     links, stop = get_stuarts_links('https://stuartsoperahouse.org/events/')
     scraped = get_event_html(links[:1], 'stuarts')
     results = parse(scraped)
