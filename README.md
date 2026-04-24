@@ -1,121 +1,293 @@
-# 📅 LocalPulse
-### A Multi-Agent System for Local Event Discovery
+# OnLo
 
-> *"I never know what's happening around me, and finding local events is scattered across a dozen different websites."*
+> *On Location — a multi-agent event aggregation app for Athens, Ohio.*
 
-LocalPulse is a multi-agent application that automatically aggregates, cleans, enriches, and displays local events in a personalized calendar interface. Built with LLM-powered agents, it transforms raw, messy web data into a structured, user-friendly event feed.
-
----
-
-## 🧠 How It Works
-
-Four specialized AI agents collaborate in a pipeline to take events from the web to your calendar:
-
-| Agent | Role |
-|---|---|
-| 🕷️ **Scraper** | Fetches raw HTML from target sources using Selenium; uses screenshot OCR for dynamic pages |
-| 🔍 **Parser** | Extracts structured fields (name, date, time, cost, location, description, link) via LLM |
-| ✅ **Validator** | Deduplicates, cleans, and checks data before writing to the database |
-| 💬 **Chat Agent** | Answers natural language queries like *"what's free this Saturday?"* |
-
-Pipeline scheduling is handled by **APScheduler** (runs daily at a configured time) — treated as infrastructure, not an agent.
+**AI 3300 — Agent-ML Course Project**
+**Student:** Skyler Fokine
+**Professor:** Ziyang Song
+**Date:** April 24, 2026
 
 ---
 
-## 🗂️ Event Categories
+## What Is OnLo?
 
-- 🎓 Campus (Ohio University events)
-- 🏘️ Community (local Athens area events)
-- 🎭 Theater & Arts
-- 🎵 Concerts & Music
+OnLo is a multi-agent web application that aggregates local events from Athens, Ohio, processes them through an LLM-based agent pipeline, stores them in a PostgreSQL database, and displays them in a React calendar interface with a natural-language chat assistant.
 
----
-
-## 🖥️ Frontend Views
-
-- **Monthly Calendar** — event density per day, click to drill down
-- **Day Detail View** — all events for a selected date with full details
-- **Event Feed** — scrollable, filterable list of upcoming events
-- **Chat Interface** — natural language event queries
-- **User Event Submission** — community members can submit events directly
+The project started as "LocalPulse" during development and was rebranded to OnLo (short for **On Lo**cation) for release.
 
 ---
 
-## 🔄 Pipeline Flow
+## The Four Agents
 
-```
-APScheduler (daily trigger)
-    ↓
-Scraper → raw HTML / screenshots
-    ↓
-Parser → structured event dict
-    ↓
-Validator → clean, deduplicated record
-    ↓
-PostgreSQL Database
-    ↓
-React Frontend (Calendar + Feed views)
-    ↕
-Chat Agent (available anytime for user queries)
-```
+| Agent | File | Role |
+|---|---|---|
+| Scraper Agent | `server/app/agents/scraper.py` | Fetches raw HTML from OU Calendar and Stuart's Opera House |
+| Parser Agent | `server/app/agents/parser.py` | Extracts structured fields from raw HTML using Qwen 2.5 Coder 7B via Ollama |
+| Validator Agent | `server/app/agents/validator.py` | Deduplicates, validates required fields, rejects past events |
+| Chat Agent | `server/app/agents/chat.py` | Answers natural-language event queries using the database + Qwen |
+
+**APScheduler** runs the Scraper → Parser → Validator → DB pipeline daily at 6am. It is intentionally infrastructure, not an agent.
 
 ---
 
-## 🌐 Data Sources
-
-- Ohio University Events Calendar (public)
-- Athens Messenger event listings
-- Eventbrite API (ticketed events)
-- Local Facebook Groups via Selenium *(ToS risk acknowledged — scoped to public listings)*
-- Venue websites (Casa Nueva, Stuart's Opera House, etc.)
-
----
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Scraping | Python, Selenium, BeautifulSoup, Vision/OCR model |
-| Agent LLM | Claude API (Anthropic) |
-| Backend | FastAPI + PostgreSQL |
+| Language | Python 3.14 |
+| Scraping | requests, BeautifulSoup4 |
+| Agent LLM | Qwen 2.5 Coder 7B via Ollama (local) |
+| Backend | FastAPI + uvicorn |
+| Database | PostgreSQL |
 | Scheduler | APScheduler |
 | Frontend | React + FullCalendar.js |
+| Environment | WSL on Windows |
 
 ---
 
-## 🚀 Getting Started
+## Prerequisites
 
-> *Setup instructions coming soon as development begins.*
+1. **Python 3.14** with pip
+2. **PostgreSQL** installed and running
+3. **Ollama** installed with `qwen2.5-coder:7b` model pulled
+4. **Node.js + npm** for the React frontend
 
+Install Ollama:
 ```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/localpulse.git
-cd localpulse
-
-# Backend setup
-pip install -r requirements.txt
-
-# Frontend setup
-cd frontend
-npm install
-npm run dev
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5-coder:7b
 ```
 
 ---
 
-## 🔭 Potential Extensions
+## Setup Instructions
 
-- **MCP Memory** — persist agent context across runs to improve extraction quality over time
-- **Location Configurability** — support any city, not just Athens
-- **Notification Agent** — daily digest emails or push notifications based on user preferences
-- **Explainability** — surface why an event was recommended
+### 1. Clone the repository
+```bash
+git clone <github-url>
+cd OnLo
+```
+
+### 2. Backend setup
+```bash
+cd server
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+Create `server/.env`:
+```
+DB_NAME=localpulse
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+> Note: the database name is still `localpulse` internally from the project's earlier working title. Renaming is a future cleanup task.
+
+### 4. Set up PostgreSQL database
+```bash
+sudo service postgresql start
+psql -U postgres
+```
+Then in psql:
+```sql
+CREATE DATABASE localpulse;
+\c localpulse
+
+CREATE TABLE events (
+    id UUID PRIMARY KEY,
+    title TEXT NOT NULL,
+    date DATE NOT NULL,
+    time TIME,
+    location TEXT,
+    description TEXT,
+    cost_free BOOLEAN,
+    cost_amount NUMERIC,
+    category TEXT,
+    source_url TEXT NOT NULL,
+    scraped_at TIMESTAMP
+);
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email TEXT,
+    preferences JSONB,
+    created_at TIMESTAMP
+);
+```
+
+### 5. Create logs directory
+```bash
+mkdir -p server/app/logs
+```
+
+### 6. Frontend setup
+```bash
+cd client
+npm install
+```
+
+The frontend uses FullCalendar.js. If you are scaffolding the `client/` folder from scratch, also run:
+```bash
+npx create-react-app .
+npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction
+```
 
 ---
 
-## 📌 Project Status
+## Running the Project
 
-🟡 **In Development** — Proposal approved, architecture phase starting.
+### Start all services (4 terminals):
+
+**Terminal 1 — Ollama:**
+```bash
+ollama serve
+```
+
+**Terminal 2 — PostgreSQL:**
+```bash
+sudo service postgresql start
+```
+
+**Terminal 3 — FastAPI backend:**
+```bash
+cd server
+source .venv/bin/activate
+uvicorn app.main:app --reload
+```
+
+**Terminal 4 — React frontend:**
+```bash
+cd client
+npm start
+```
+
+### Run the pipeline manually (populate the database):
+```bash
+cd server
+source .venv/bin/activate
+python -m app.pipeline.scheduler
+```
+
+### Access the app:
+- Frontend: `http://localhost:3000`
+- API docs: `http://localhost:8000/docs`
 
 ---
 
-*Built for Agent-ML Course · Spring 2026*
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/events` | All events ordered by date |
+| GET | `/events/{date}` | Events for a specific date (YYYY-MM-DD) |
+| POST | `/chat` | Natural-language event query |
+
+**Chat endpoint example:**
+```json
+POST /chat
+{ "question": "What's free this weekend?" }
+```
+
+Returns:
+```json
+{ "response": "This weekend you have..." }
+```
+
+---
+
+## Frontend Views
+
+The React frontend has three top-level tabs:
+
+1. **Calendar** — FullCalendar.js monthly grid; click any day to see that day's events.
+2. **All Events** — scrollable feed of every upcoming event.
+3. **Chat** — ask natural-language questions about upcoming events.
+
+---
+
+## Running the Evaluation
+
+The Parser Agent evaluation compares Qwen's structured output against 20 hand-labeled gold-standard events.
+
+```bash
+cd server
+source .venv/bin/activate
+ollama serve   # must be running
+python -m tests.eval
+```
+
+**Results:** 19 / 20 events matched — 95% exact match rate (threshold: ≥ 80%).
+
+---
+
+## Project Structure
+```
+OnLo/
+├── client/                      # React frontend
+│   ├── public/
+│   └── src/
+│       ├── App.js
+│       ├── Calendar.jsx         # FullCalendar.js monthly view
+│       ├── DayDetail.jsx        # Per-day event detail view
+│       ├── EventFeed.jsx        # All upcoming events
+│       └── Chat.jsx             # Chat interface
+├── server/
+│   ├── app/
+│   │   ├── main.py              # FastAPI entry point
+│   │   ├── agents/
+│   │   │   ├── scraper.py       # Scraper Agent
+│   │   │   ├── parser.py        # Parser Agent
+│   │   │   ├── validator.py     # Validator Agent
+│   │   │   └── chat.py          # Chat Agent
+│   │   ├── db/
+│   │   │   ├── connection.py    # DB connection
+│   │   │   └── insert.py        # DB insertion
+│   │   ├── routers/
+│   │   │   └── events.py        # API routes
+│   │   ├── pipeline/
+│   │   │   └── scheduler.py     # APScheduler pipeline
+│   │   └── logs/                # Per-agent log files
+│   └── tests/
+│       ├── eval.py              # Parser evaluation script
+│       └── gold_standard/
+│           ├── input/           # 20 raw HTML input samples
+│           └── expected/        # 20 hand-labeled expected outputs
+└── README.md
+```
+
+---
+
+## Log Files
+
+Each agent writes a plain-text log file per run:
+- `server/app/logs/scraper.log`
+- `server/app/logs/parser.log`
+- `server/app/logs/validator.log`
+- `server/app/logs/chat.log`
+
+Format:
+```
+YYYY-MM-DD HH:MM | Agent Name | [PASS/FAIL] | details
+```
+
+---
+
+## Future Work
+
+- Expand scraping to additional Athens venues (Casa Nueva, Passion Works Studio).
+- Swap the Parser from local Qwen to the Google Gemini free student API.
+- User onboarding and personalization (the `users` table already reserves a JSONB `preferences` column).
+- Event-submission form for community members.
+- Self-host OnLo on a home server for public access.
+- Generalize the city beyond Athens by making source configuration data-driven.
+
+---
+
+## License
+
+Academic project — AI 3300 at Ohio University, Spring 2026.

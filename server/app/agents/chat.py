@@ -20,7 +20,7 @@ def chat(user_query: str) -> str:
     today = date.today()
     week_out = today + timedelta(days = 7)
     cur.execute("""
-                SELECT title,date,time,cost_free,cost_amount, location, source url
+                SELECT title,date,time,cost_free,cost_amount, location, source_url
                 FROM events
                 WHERE date >= %s AND date <= %s
                 ORDER BY date ASC, time ASC
@@ -30,7 +30,7 @@ def chat(user_query: str) -> str:
     conn.close()
 
     #format events into readable string for a prompt 
-    if now rows: 
+    if not rows: 
         return "I dont see any upcoming events in the next 7 days."
 
     event_lines = []
